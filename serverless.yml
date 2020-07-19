@@ -1,0 +1,38 @@
+# # DynamoDB table
+todoDatabase:
+  component: "@serverless/aws-dynamodb"
+  inputs:
+    name: posts
+    hashKey: id
+    schema:
+      id: number
+      description: string  
+
+# Aws lambda function
+createPost:
+  component: "@serverless/aws-lambda"
+  inputs:
+    code: ./code
+    handler: todo.create
+    env:
+      todoTableName: posts
+getPosts:
+  component: "@serverless/aws-lambda"
+  inputs:
+    code: ./code
+    handler: todo.list
+    env:
+      todoTableName: posts    
+
+#REST API
+restApi:
+  component: "@serverless/aws-api-gateway"
+  inputs:
+    description: Serverless REST API
+    endpoints:
+      - path: /todo
+        method: POST
+        function: ${createPost.arn}
+      - path: /todo
+        method: GET
+        function: ${getPosts.arn}
